@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Pokemon Fetch</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+<style>
+  .modal-title::first-letter {
+  text-transform: uppercase;
+}
+</style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+            <h2 class="text-center" id="count"></h2>
+              <table class="table table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th class="capitalize" scope="col">Name</th>
+                    <th scope="col">Url</th>
+                </tr>
+                </thead>
+                <tbody id="pokemonValues">
+                    <!-- dynamic table values -->
+                </tbody>
+            </table>
+            <div class="modal modalUrl" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body moda-body-pokemon listAbilities">
+                    
+                      <!-- url properties -->
+                    
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div> 
+        </div>
+        </div>
+    </div>
+    
+    <script>
+            
+      let pokemon = [];
+            
+           
+        function fetchKantoPokemon(){
+            let tr = "";
+            fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
+            .then(response => response.json())
+            .then(allpokemon =>  {
+                //console.log(allpokemon)
+                let resultsArr=allpokemon.results;
+                let count = allpokemon.count;
+                resultsArr.forEach((p,i) => {
+                    console.log(p);
+                    let url = p.url;
+                    pokemon.push(p); 
+                    tr += `<tr>
+                        <th scope="row">${i}</th>
+                        <td>${p.name[0].toUpperCase() + p.name.slice(1).toLowerCase()}</td>
+                        <td><a class="btn btn-outline-danger" onclick="abilities('${url}','${i}','${p.name}')">See more</a></td>
+                    </tr>`
+                });
+                    let elem = document.querySelector('#pokemonValues');
+                    elem.insertAdjacentHTML('beforeend', tr);
+               
+                    document.querySelector('#count').innerHTML ='Total Pokemons: ' + count;
+            })
+        }
+        
+
+        function abilities(url,i,name){
+          let result = '';
+          // set modal id
+          document.querySelector('.modalUrl').setAttribute('id','urlModal'+ i);
+          let id = document.querySelector('.modalUrl').id;
+          document.querySelector('.modal-title').innerHTML = name;
+          //open modal
+          $("#"+id).modal('show');
+            fetch(url).then(response => response.json())
+            .then(pokemonurl =>  {
+              //console.log(pokemonurl);
+              pokemonurl.stats.forEach((s) => {
+                //console.log(s)
+                result += `
+                <ul class="list-group pb-4">
+                  <li class="list-group-item">name: ${s.stat.name}</li>
+                  <li class="list-group-item">base_stat: ${s.base_stat}</li>
+                  <li class="list-group-item">effort: ${s.effort}</li>
+                </ul>`
+              }) 
+              document.querySelector('.listAbilities').innerHTML = result;
+            })
+        }
+
+         fetchKantoPokemon();
+
+
+        
+    </script>
+</body>
+
+</html>
